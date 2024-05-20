@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Literary Lighthouse{% endblock %}</title>
+    <!-- Bootstrap CSS link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .welcome-message {
+            color: white; /* Set username text color to white */
+            font-weight: bold; /* Make username text bold */
+            font-size: 18px; /* Adjust username text size as needed */
+            margin-right: 10px; /* Add space between welcome message and username */
+        }
+        .brand-name {
+            font-weight: bold;
+            font-size: 24px; /* Adjust the font size as needed */
+            text-align: left !important; /* Important to override Bootstrap's text alignment */
+            color: beige;
+        }
+        .book-card {
+            width: 100vw;
+        }
+
+        /* Ensure logo is aligned to the left */
+        .brand-name {
+            margin-right: auto;
+        }
+
+        /* Ensure search form is centered */
+        @media (min-width: 992px) {
+        .navbar-nav {
+             flex-direction: row; /* Ensure items are in a row on larger screens */
+            }
+
+        .form-inline {
+            margin-left: auto; /* Push search form to the right */
+            }
+        }
+        .navbar-nav .nav-link {
+            color: white; /* Change the color to white */
+            font-size: 25px; 
+        }
+        /* CSS to hide the dropdown menu by default */
+        #cart-dropdown {
+            display: none;
+            position: absolute; /* Position the dropdown correctly */
+            right: 0; /* Align the dropdown to the right */
+        }
+
+        /* CSS to show the dropdown menu when the 'show' class is added */
+        #cart-dropdown.show {
+            display: block;
+        }
+
+        /* Style the cart items */
+        #cart-items .cart-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc; /* Add horizontal line */
+        }
+        #cart-items .cart-item:last-child {
+            border-bottom: none; /* Remove border for the last item */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-name" href="#">Literary Lighthouse</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <!-- Empty item to push search to the middle -->
+                    <li class="nav-item d-none d-lg-block"></li>
+                </ul>
+                <form class="form-inline my-2 my-lg-0" method="GET" action="{% url 'search_results' %}">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search by title or author" aria-label="Search" name="query">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                
+                <ul class="navbar-nav ml-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="navbar-text welcome-message">Welcome, {{ user.username }}</strong></span>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a href="#" id="cart-icon" class="nav-link">
+                            <i class="fa fa-shopping-cart">Cart</i>
+                        </a>
+                        <!-- Define a dropdown menu for the cart -->
+                        <div class="dropdown-menu" id="cart-dropdown">
+                            <div id="cart-items">
+                                <!-- Cart items will be displayed here -->
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_logout' %}">Logout</a>
+                    </li>
+                    
+                    
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_login' %}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-5">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS script -->
+    <script>
+        // Your JavaScript code here
+        console.log("You are inside Java Script Function ")
+        // JavaScript code to fetch cart items and render them in the dropdown menu
+        document.addEventListener('DOMContentLoaded', function() {
+            var cartIcon = document.getElementById('cart-icon');
+            var cartDropdown = document.getElementById('cart-dropdown');
+            var cartItemsContainer = document.getElementById('cart-items');
+
+            // Function to fetch cart items from backend
+            function fetchCartItems() {
+                // Make an AJAX request to fetch cart items
+                fetch('/api/cart/items/')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Received data:', data);
+                        // Render cart items in the dropdown menu
+                        renderCartItems(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching cart items:', error);
+                    });
+            }
+
+            // Function to render cart items in the dropdown menu
+            function renderCartItems(cartItems) {
+                // Clear previous cart items
+                cartItemsContainer.innerHTML = '';
+
+                // Render each cart item
+                cartItems.forEach(function(item) {
+                    var cartItemElement = document.createElement('div');
+                    cartItemElement.classList.add('cart-item');
+                    cartItemElement.textContent = item.book.title + ' - Quantity: ' + item.quantity;
+                    cartItemsContainer.appendChild(cartItemElement);
+                });
+            }
+
+            // Toggle visibility of cart dropdown menu when cart icon is clicked
+            cartIcon.addEventListener('click', function(event) {
+                event.preventDefault();
+                cartDropdown.classList.toggle('show');
+
+                // Fetch cart items when dropdown menu is shown
+                if (cartDropdown.classList.contains('show')) {
+                    fetchCartItems();
+                }
+            });
+
+            // Close cart dropdown menu when clicking outside of it
+            document.addEventListener('click', function(event) {
+                if (!cartDropdown.contains(event.target) && !cartIcon.contains(event.target)) {
+                    cartDropdown.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

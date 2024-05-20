@@ -1,0 +1,17 @@
+{% extends 'user_authentication/base.html' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+
+<h2>Search Results for "{{ query }}"</h2>
+<ul>
+    {% for book in books %}
+        <li>{{ book.title }} - {{ book.author }}</li>
+        <!-- Display other book details as needed -->
+    {% empty %}
+        <li>No results found.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

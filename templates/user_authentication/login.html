@@ -1,0 +1,33 @@
+{% extends "user_authentication/base.html" %}
+
+{% load static %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="display-4 text-center mb-4">Please Fill Out the Form to Login</h1>
+        <form action="{% url 'user_login' %}" method="post" class="mt-5">
+            {% csrf_token %}
+
+            <div class="form-group row justify-content-center">
+                <label for="username" class="col-sm-2 col-form-label text-right" style="font-size: 1.2em;">Username:</label>
+                <div class="col-sm-4">
+                    <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Enter Username" required>
+                </div>
+            </div>
+
+            <div class="form-group row justify-content-center">
+                <label for="password" class="col-sm-2 col-form-label text-right" style="font-size: 1.2em;">Password:</label>
+                <div class="col-sm-4">
+                    <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="Enter Password" required>
+                </div>
+            </div>
+
+            <div class="form-group row justify-content-center">
+                <div class="col-sm-6 text-center">
+                    <button type="submit" class="btn btn-secondary btn-lg ml-2">Login</button>
+                    <a href="{% url 'book_list' %}" class="btn btn-secondary btn-lg ml-2">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
